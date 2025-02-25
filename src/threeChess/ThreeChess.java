@@ -249,6 +249,11 @@ public class ThreeChess{
     else if (args.length > 0 && args[0].equals("cheat")){
       playCheat();
     }
-    else tournament(bots,300,0,true,null);
+    else if (args.length > 0 && args[0].equals("llm")){
+      System.out.println("Starting game with LLM Agent (Blue) vs RandomAgents");
+      bots = new Agent[] {new LLMAgent(), new RandomAgent(), new RandomAgent()};
+      tournament(bots,120,0,true, null);
+    }
+    else tournament(bots,300,1,true,null);
   }
 }

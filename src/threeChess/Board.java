@@ -362,6 +362,29 @@ public class Board implements Cloneable, Serializable {
   }
 
   /**
+   * Gets all legal moves for the current player
+   * @return a Set of Position arrays, where each array contains the start and end positions of a legal move
+   */
+  public Set<Position[]> getLegalMoves() {
+    Set<Position[]> legalMoves = new HashSet<>();
+    Colour currentTurn = getTurn();
+    
+    // Get all pieces of the current player
+    Set<Position> pieces = getPositions(currentTurn);
+    
+    // Check all possible destination positions for each piece
+    for (Position start : pieces) {
+      for (Position end : Position.values()) {
+        if (isLegalMove(start, end)) {
+          legalMoves.add(new Position[]{start, end});
+        }
+      }
+    }
+    
+    return legalMoves;
+  }
+
+  /**
    * The winner of the game is the player who takes another player's King,
    * or the player with the highest score when another player runs out of time.
    * @return the winner of the game or null if it's a draw or not yet decided.
