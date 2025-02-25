@@ -1,5 +1,18 @@
+<<<<<<< HEAD
 openai
 requests
 termcolor
 flask
 langsmith 
+=======
+fastapi
+uvicorn
+pydantic
+termcolor
+openai
+anthropic
+requests
+flask
+pygame
+jinja2 
+>>>>>>> cd004f9d0b6de82156fef5b84b76c797a70198db

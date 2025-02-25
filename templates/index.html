@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreeChess LLM Arena</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .game-board {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .board-image {
+            width: 100%;
+            max-width: 480px;
+            display: block;
+            margin: 0 auto;
+        }
+        .game-controls {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .player-setup {
+            background-color: #e9ecef;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .move-history {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .move-entry {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .move-entry:last-child {
+            border-bottom: none;
+        }
+        .player-blue {
+            border-left: 4px solid #0d6efd;
+        }
+        .player-green {
+            border-left: 4px solid #198754;
+        }
+        .player-red {
+            border-left: 4px solid #dc3545;
+        }
+        .btn-blue {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .btn-green {
+            background-color: #198754;
+            color: white;
+        }
+        .btn-red {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">ThreeChess LLM Arena</h1>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="game-board">
+                    <h3 class="mb-3">Game Board</h3>
+                    <img src="data:image/png;base64,{{ board_image }}" alt="ThreeChess Board" class="board-image img-fluid">
+                    
+                    <div class="mt-3 text-center">
+                        <h5>Current Turn: <span id="current-turn" class="badge {% if game_status == 'running' %}
+                            {% if players %}
+                                {% if board.turn == 'BLUE' %}bg-primary{% elif board.turn == 'GREEN' %}bg-success{% else %}bg-danger{% endif %}
+                            {% else %}
+                                bg-secondary
+                            {% endif %}
+                            {% else %}
+                            bg-secondary
+                            {% endif %}">
+                            {% if game_status == 'running' %}{{ board.turn }}{% else %}Game not started{% endif %}
+                        </span></h5>
+                        <p>Status: <span id="game-status" class="badge {% if game_status == 'running' %}bg-success{% elif game_status == 'finished' %}bg-info{% else %}bg-warning{% endif %}">
+                            {{ game_status|title }}
+                        </span></p>
+                    </div>
+                </div>
+                
+                <div class="game-controls">
+                    <div class="d-flex justify-content-between mb-3">
+                        <button id="start-btn" class="btn btn-success" {% if game_status == 'running' %}disabled{% endif %} onclick="document.getElementById('start-form').submit();">
+                            Start Game
+                        </button>
+                        <button id="move-btn" class="btn btn-primary" {% if game_status != 'running' %}disabled{% endif %} onclick="document.getElementById('move-form').submit();">
+                            Make Move
+                        </button>
+                        <button id="reset-btn" class="btn btn-danger" onclick="document.getElementById('reset-form').submit();">
+                            Reset Game
+                        </button>
+                    </div>
+                    
+                    <form id="start-form" action="/start_game" method="POST">
+                        <h4>Player Setup</h4>
+                        
+                        <div class="player-setup player-blue">
+                            <h5>Blue Player</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label for="blue_provider">Provider:</label>
+                                        <select name="blue_provider" id="blue_provider" class="form-control">
+                                            <option value="openai" {% if players.BLUE.provider == 'openai' %}selected{% endif %}>OpenAI</option>
+                                            <option value="anthropic" {% if players.BLUE.provider == 'anthropic' %}selected{% endif %}>Anthropic</option>
+                                            <option value="openrouter" {% if players.BLUE.provider == 'openrouter' %}selected{% endif %}>OpenRouter</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label for="blue_model">Model:</label>
+                                        <input type="text" name="blue_model" id="blue_model" class="form-control" value="{{ players.BLUE.model }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="player-setup player-green">
+                            <h5>Green Player</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label for="green_provider">Provider:</label>
+                                        <select name="green_provider" id="green_provider" class="form-control">
+                                            <option value="openai" {% if players.GREEN.provider == 'openai' %}selected{% endif %}>OpenAI</option>
+                                            <option value="anthropic" {% if players.GREEN.provider == 'anthropic' %}selected{% endif %}>Anthropic</option>
+                                            <option value="openrouter" {% if players.GREEN.provider == 'openrouter' %}selected{% endif %}>OpenRouter</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label for="green_model">Model:</label>
+                                        <input type="text" name="green_model" id="green_model" class="form-control" value="{{ players.GREEN.model }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="player-setup player-red">
+                            <h5>Red Player</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label for="red_provider">Provider:</label>
+                                        <select name="red_provider" id="red_provider" class="form-control">
+                                            <option value="openai" {% if players.RED.provider == 'openai' %}selected{% endif %}>OpenAI</option>
+                                            <option value="anthropic" {% if players.RED.provider == 'anthropic' %}selected{% endif %}>Anthropic</option>
+                                            <option value="openrouter" {% if players.RED.provider == 'openrouter' %}selected{% endif %}>OpenRouter</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label for="red_model">Model:</label>
+                                        <input type="text" name="red_model" id="red_model" class="form-control" value="{{ players.RED.model }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <form id="move-form" action="/make_move" method="POST" style="display: none;"></form>
+                    <form id="reset-form" action="/reset_game" method="POST" style="display: none;"></form>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="game-controls">
+                    <h3 class="mb-3">Move History</h3>
+                    <div class="move-history">
+                        {% if move_history %}
+                            {% for move in move_history %}
+                                <div class="move-entry player-{{ move.color|lower }}">
+                                    <strong>{{ move.color }}</strong> moved from {{ move.start }} to {{ move.end }}
+                                    <div class="small text-muted">{{ move.reasoning }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-center text-muted">No moves yet</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-refresh the board image and game status every 5 seconds when game is running
+        function refreshGame() {
+            const gameStatus = document.getElementById('game-status').innerText.toLowerCase();
+            if (gameStatus === 'running') {
+                fetch('/board_image')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.image) {
+                            document.querySelector('.board-image').src = `data:image/png;base64,${data.image}`;
+                        }
+                    });
+                    
+                fetch('/game_status')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.error) {
+                            document.getElementById('game-status').innerText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                            document.getElementById('current-turn').innerText = data.turn;
+                            
+                            // Update turn color
+                            const turnBadge = document.getElementById('current-turn');
+                            turnBadge.className = 'badge';
+                            if (data.turn === 'BLUE') {
+                                turnBadge.classList.add('bg-primary');
+                            } else if (data.turn === 'GREEN') {
+                                turnBadge.classList.add('bg-success');
+                            } else if (data.turn === 'RED') {
+                                turnBadge.classList.add('bg-danger');
+                            } else {
+                                turnBadge.classList.add('bg-secondary');
+                            }
+                            
+                            // Enable/disable buttons based on game status
+                            document.getElementById('start-btn').disabled = (data.status === 'running');
+                            document.getElementById('move-btn').disabled = (data.status !== 'running');
+                            
+                            // Reload page if there's a new move to update history
+                            if (data.last_move) {
+                                // Check if we need to reload by comparing with last displayed move
+                                const moveEntries = document.querySelectorAll('.move-entry');
+                                const shouldReload = moveEntries.length === 0 || 
+                                                  !moveEntries[moveEntries.length - 1].textContent.includes(data.last_move.start) ||
+                                                  !moveEntries[moveEntries.length - 1].textContent.includes(data.last_move.end);
+                                
+                                if (shouldReload) {
+                                    window.location.reload();
+                                }
+                            }
+                        }
+                    });
+            }
+        }
+        
+        // Initial refresh and set interval
+        refreshGame();
+        setInterval(refreshGame, 5000);
+    </script>
+</body>
+</html> 
