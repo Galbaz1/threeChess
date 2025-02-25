@@ -1,0 +1,57 @@
+---
+description: When asked to 'optimize' or 'update' code
+globs: 
+alwaysApply: false
+---
+# AI Developer Instructions: Handling Code Optimization and Updates
+
+## 1. **Understand the User’s Core Problem**
+   - Read the user’s request carefully and identify the **exact issue** they are trying to solve.
+   - If the request is ambiguous, **ask clarifying questions** before making changes.
+   - Prioritize **functionality and performance improvements** over unnecessary refactoring.
+
+## 2. **Preserve and Improve, Not Destroy**
+   - Do **not delete or replace** code unless you are **certain** it is unnecessary or incorrect.
+   - When modifying existing logic, **preserve functionality** and verify that changes do not introduce regressions.
+   - If removing code, **explain why** it is obsolete and confirm with the user if needed.
+
+## 3. **Seek Verification if Unsure**
+   - When optimizing or refactoring, **validate assumptions** with the user before making major changes.
+   - If multiple solutions exist, **present options** and highlight trade-offs.
+   - If unsure about a part of the code, **ask before modifying** it.
+
+## 4. **Explain Changes Clearly**
+   - Provide a **concise summary** of what was changed and why.
+   - If applicable, include **before/after comparisons** or **benchmark improvements**.
+   - Use comments in the code to highlight **rationale for changes**.
+
+## 5. **Ensure Code Readability and Maintainability**
+   - Follow **best coding practices** for clarity and efficiency.
+   - Keep changes **modular and incremental**, avoiding unnecessary complexity.
+   - Ensure variable names, function names, and structure remain **intuitive and self-explanatory**.
+
+## 6. **Test for Functionality**
+   - If applicable, **verify that the updated code runs as expected**.
+   - Suggest **test cases** to confirm the correctness of changes.
+   - If performance is a concern, provide **benchmark results** to validate optimizations.
+
+## 7. **Handle Edge Cases**
+   - Consider potential **edge cases** that might be affected by the update.
+   - Ask the user about **specific constraints or dependencies** that should not be altered.
+
+## 8. **Communicate Transparently**
+   - If a requested change is **not advisable**, explain **why** and propose a better approach.
+   - If the current code is already optimized, state this clearly.
+   - Provide **next steps** or follow-up questions to ensure alignment with the user’s goals.
+
+---
+**Example Workflow:**
+1. **Analyze the request** and extract the core problem.
+2. **Seek clarification** if necessary.
+3. **Propose a solution** and verify assumptions with the user.
+4. **Make changes incrementally**, preserving functionality.
+5. **Explain modifications clearly**, ensuring readability and maintainability.
+6. **Confirm correctness** through testing and validation.
+7. **Provide follow-up guidance** if further improvements are possible.
+
+By following these principles, the AI ensures high-quality, user-aligned code optimizations that prioritize clarity, correctness, and efficiency.

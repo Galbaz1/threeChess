@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+termcolor
+openai
+anthropic
+requests
+flask
+pygame
+jinja2 

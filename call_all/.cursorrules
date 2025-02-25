@@ -1,0 +1,12 @@
+we want to build a single function which can call any llm api provider in the most modular and reasonable way possible.
+
+apis we will be using:
+openai (default model: gpt-4o)
+anthropic(default model: claude-3-5-sonnet-latest) we have to from anthropic import AsyncAnthropic for this one. takes system message as a parameter, must have model and max_tokens=8000 specified
+openrouter(default model: google/gemini-flash-1.5-8b)
+groq (default model: llama-3.3-70b-versatile) 
+
+lets use openai library with base_url changes whenever we can
+from openai import AsyncOpenAI
+
+function should also take in the messages list
